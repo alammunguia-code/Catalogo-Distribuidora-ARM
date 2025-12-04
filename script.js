@@ -4,8 +4,8 @@ const ENTRY = {
   telefono: 'entry.675797328',
   direccion: 'entry.1917704239',
   email: 'entry.865391267',
-  pedido: 'entry.1631925112',
-  total: 'entry.1054448594'
+  pedido: 'entry.889150100',
+  total: 'entry.1238815983'
 };
 
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -159,5 +159,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderProductos();
   renderCart();
 });
+
 
 
