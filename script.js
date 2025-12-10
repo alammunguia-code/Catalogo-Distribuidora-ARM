@@ -14,24 +14,34 @@ const ENTRY = {
 document.addEventListener('DOMContentLoaded', ()=>{
 
   /********************************************
-   * PRODUCTOS — Aquí defines precio y precioMayoreo
+   * LISTA DE PRODUCTOS — 100% editable
    ********************************************/
   const productos = [
-    { id:1, nombre:'Sombrero Palma Fina', precio:189, precioMayoreo:160, imagen:'...' },
-    { id:2, nombre:'Sombrero Charro Juvenil', precio:249, precioMayoreo:215, imagen:'...' },
-    { id:3, nombre:'Sombrero Rancho Premium', precio:329, precioMayoreo:290, imagen:'...' },
-    { id:4, nombre:'Sombrero Palmita Económico', precio:129, precioMayoreo:110, imagen:'...' },
-    // 👉 en cada producto agregas precioMayoreo
+    { id:1, nombre:'Sombrero Palma Fina', precio:189, precioMayoreo:165, imagen:'https://via.placeholder.com/400x300?text=Palma+Fina' },
+    { id:2, nombre:'Sombrero Charro Juvenil', precio:249, precioMayoreo:220, imagen:'https://via.placeholder.com/400x300?text=Charro+Juvenil' },
+    { id:3, nombre:'Sombrero Rancho Premium', precio:329, precioMayoreo:290, imagen:'https://via.placeholder.com/400x300?text=Rancho' },
+    { id:4, nombre:'Sombrero Palmita Económico', precio:129, precioMayoreo:115, imagen:'https://via.placeholder.com/400x300?text=Palmita' },
+    { id:5, nombre:'Sombrero Vaquero Café', precio:259, precioMayoreo:225, imagen:'https://via.placeholder.com/400x300?text=Vaquero+Cafe' },
+    { id:6, nombre:'Sombrero Vaquero Negro', precio:279, precioMayoreo:245, imagen:'https://via.placeholder.com/400x300?text=Vaquero+Negro' },
+    { id:7, nombre:'Sombrero Infantil Modelo 1', precio:149, precioMayoreo:135, imagen:'https://via.placeholder.com/400x300?text=Infantil+1' },
+    { id:8, nombre:'Sombrero Infantil Modelo 2', precio:159, precioMayoreo:140, imagen:'https://via.placeholder.com/400x300?text=Infantil+2' },
+    { id:9, nombre:'Sombrero Tradicional Mexicano', precio:199, precioMayoreo:175, imagen:'https://via.placeholder.com/400x300?text=Tradicional' },
+    { id:10, nombre:'Sombrero de Palma Artesanal', precio:299, precioMayoreo:255, imagen:'https://via.placeholder.com/400x300?text=Palma+Artesanal' },
+    { id:11, nombre:'Sombrero Palmilla Premium', precio:349, precioMayoreo:310, imagen:'https://via.placeholder.com/400x300?text=Palmilla+Premium' },
+    { id:12, nombre:'Sombrero Charro Bordado', precio:399, precioMayoreo:350, imagen:'https://via.placeholder.com/400x300?text=Charro+Bordado' },
+    { id:13, nombre:'Sombrero Juvenil Palmita', precio:139, precioMayoreo:120, imagen:'https://via.placeholder.com/400x300?text=Juvenil+Palmita' },
+    { id:14, nombre:'Sombrero Adulto Palmita', precio:159, precioMayoreo:135, imagen:'https://via.placeholder.com/400x300?text=Adulto+Palmita' },
+    { id:15, nombre:'Sombrero Vaquero Premium', precio:349, precioMayoreo:310, imagen:'https://via.placeholder.com/400x300?text=Vaquero+Premium' },
+    { id:16, nombre:'Sombrero Cinto Café', precio:289, precioMayoreo:250, imagen:'https://via.placeholder.com/400x300?text=Cinto+Cafe' },
+    { id:17, nombre:'Sombrero Cinto Negro', precio:289, precioMayoreo:250, imagen:'https://via.placeholder.com/400x300?text=Cinto+Negro' },
+    { id:18, nombre:'Sombrero de Palma Dura', precio:219, precioMayoreo:190, imagen:'https://via.placeholder.com/400x300?text=Palma+Dura' },
+    { id:19, nombre:'Sombrero de Palma Suave', precio:209, precioMayoreo:180, imagen:'https://via.placeholder.com/400x300?text=Palma+Suave' },
+    { id:20, nombre:'Sombrero Elegante Tradición', precio:379, precioMayoreo:330, imagen:'https://via.placeholder.com/400x300?text=Elegante' }
   ];
 
-  /********************************************
-   * Estado inicial del carrito
-   ********************************************/
   let carrito = JSON.parse(localStorage.getItem('amat_carrito_v1')||'[]');
 
-  /********************************************
-   * ELEMENTOS
-   ********************************************/
+  /********** ELEMENTOS DOM **********/
   const catalogoEl = document.getElementById('catalogo');
   const cartBtn = document.getElementById('cart-btn');
   const cartBadge = document.getElementById('cart-badge');
@@ -43,7 +53,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const submitBtn = document.getElementById('submit-order');
 
   /********************************************
-   * Render de productos en la página
+   * RENDER PRODUCTOS
    ********************************************/
   function renderProductos(){
     catalogoEl.innerHTML = '';
@@ -55,13 +65,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       card.innerHTML = `
         <img src="${p.imagen}" alt="${p.nombre}">
         <h3>${p.nombre}</h3>
-
-        <div class="price">
-          $${p.precio} MXN
-        </div>
-
-        <small class="mayoreo">Precio mayoreo: $${p.precioMayoreo} MXN</small><br>
-        <small style="color:#10b981">¡Ahorra $${ahorro} por pieza!</small>
+        <div class="price">$${p.precio} MXN</div>
+        <small>Precio mayoreo: $${p.precioMayoreo} MXN</small><br>
+        <small style="color:#10b981">Ahorra $${ahorro} por pieza</small>
 
         <button class="btn" data-index="${i}">Agregar al carrito</button>
       `;
@@ -69,40 +75,29 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   }
 
-  /********************************************
-   * Guardar carrito local
-   ********************************************/
   function saveCart(){
     localStorage.setItem('amat_carrito_v1', JSON.stringify(carrito));
   }
 
-  /********************************************
-   * Badge carrito
-   ********************************************/
   function updateBadge(){
     const cantidad = carrito.reduce((s,i)=>s+i.cantidad,0);
-    if(cantidad>0){
-      cartBadge.style.display='flex';
-      cartBadge.textContent = cantidad;
-    }else{
-      cartBadge.style.display='none';
-    }
+    cartBadge.style.display = cantidad>0 ? 'flex' : 'none';
+    cartBadge.textContent = cantidad;
   }
 
   /********************************************
-   * Render del carrito
+   * RENDER CARRITO
    ********************************************/
   function renderCart(){
     cartBody.innerHTML = '';
+
     if(carrito.length===0){
-      cartBody.innerHTML='<div style="padding:18px;color:var(--muted)">Tu carrito está vacío</div>';
+      cartBody.innerHTML='<div style="padding:18px;color:#666">Tu carrito está vacío</div>';
       cartTotalEl.textContent='0';
       updateBadge(); return;
     }
 
     carrito.forEach((item,index)=>{
-      const precioAplicado = item.precioMayoreo;   // 👈 aplicamos SIEMPRE precioMayoreo (por producto)
-
       const node = document.createElement('div');
       node.className='cart-item';
 
@@ -110,17 +105,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <img src="${item.imagen}" alt="${item.nombre}">
         <div class="meta">
           <b>${item.nombre}</b>
-          <div style="color:var(--muted);font-size:13px">
-            $${precioAplicado} c/u (mayoreo)
+          <div style="color:#666;font-size:13px">
+            $${item.precioMayoreo} c/u (mayoreo)
           </div>
         </div>
-
         <div style="display:flex;flex-direction:column;align-items:flex-end">
           <input class="qty" type="number" min="1" value="${item.cantidad}" data-index="${index}">
-          <button class="small-btn" data-remove="${index}" title="Eliminar">Eliminar</button>
+          <button class="small-btn" data-remove="${index}">Eliminar</button>
         </div>
       `;
-
       cartBody.appendChild(node);
     });
 
@@ -131,20 +124,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 
   /********************************************
-   * Eventos agregar carrito
+   * EVENTOS PRINCIPALES
    ********************************************/
   catalogoEl.addEventListener('click', e=>{
     const btn = e.target.closest('button[data-index]');
     if(!btn) return;
     const idx = Number(btn.getAttribute('data-index'));
     const p = productos[idx];
-    const existing = carrito.find(x=>x.id===p.id);
 
-    if(existing){
-      existing.cantidad += 1;
-    }else{
-      carrito.push({...p,cantidad:1});
-    }
+    const existing = carrito.find(x=>x.id===p.id);
+    if(existing) existing.cantidad += 1;
+    else carrito.push({...p,cantidad:1});
 
     saveCart(); renderCart();
   });
@@ -153,8 +143,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const input = e.target.closest('input.qty');
     if(!input) return;
     const index = Number(input.getAttribute('data-index'));
-    const val = parseInt(input.value)||1;
-    carrito[index].cantidad=val;
+    carrito[index].cantidad=parseInt(input.value)||1;
     saveCart(); renderCart();
   });
 
@@ -167,65 +156,38 @@ document.addEventListener('DOMContentLoaded', ()=>{
   });
 
   /********************************************
-   * Abrir / cerrar carrito
+   * CARRITO
    ********************************************/
-  function openCart(){
-    cartPanel.classList.add('open');
-    overlay.classList.add('show');
-  }
-  function closeCartPanel(){
-    cartPanel.classList.remove('open');
-    overlay.classList.remove('show');
-  }
-  cartBtn.addEventListener('click', ()=>{ cartPanel.classList.contains('open')?closeCartPanel():openCart(); });
-  closeCart.addEventListener('click', closeCartPanel);
-  overlay.addEventListener('click', closeCartPanel);
+  cartBtn.addEventListener('click', ()=> cartPanel.classList.add('open'));
+  closeCart.addEventListener('click', ()=> cartPanel.classList.remove('open'));
+  overlay.addEventListener('click', ()=> cartPanel.classList.remove('open'));
 
   /********************************************
-   * Enviar pedido
+   * ENVIAR PEDIDO
    ********************************************/
   submitBtn.addEventListener('click', ()=>{
-    if(carrito.length===0){ alert('El carrito está vacío'); return; }
+    if(carrito.length===0){ alert('Carrito vacío'); return; }
 
-    const nombre = document.getElementById('nombre').value.trim();
-    const telefono = document.getElementById('telefono').value.trim();
-    const direccion = document.getElementById('direccion').value.trim();
-    const email = document.getElementById('email').value.trim();
-    if(!nombre||!telefono||!direccion||!email){
-      alert('Completa tus datos'); return;
-    }
-
-    const pedidoTexto = carrito.map(i=>`${i.nombre} x${i.cantidad} @ ${i.precioMayoreo}`).join("\n");
+    const pedidoTxt = carrito.map(i=>`${i.nombre} x${i.cantidad} $${i.precioMayoreo}`).join("\n");
     const total = carrito.reduce((s,i)=>s + i.precioMayoreo*i.cantidad,0);
 
     const fd = new FormData();
-    fd.append(ENTRY.nombre,nombre);
-    fd.append(ENTRY.telefono,telefono);
-    fd.append(ENTRY.direccion,direccion);
-    fd.append(ENTRY.email,email);
-    fd.append(ENTRY.pedido,pedidoTexto);
+    fd.append(ENTRY.nombre, document.getElementById('nombre').value);
+    fd.append(ENTRY.telefono, document.getElementById('telefono').value);
+    fd.append(ENTRY.direccion, document.getElementById('direccion').value);
+    fd.append(ENTRY.email, document.getElementById('email').value);
+    fd.append(ENTRY.pedido,pedidoTxt);
     fd.append(ENTRY.total,total);
 
-    submitBtn.disabled=true; submitBtn.textContent='Enviando...';
-
     fetch(FORM_URL,{method:'POST',body:fd,mode:'no-cors'})
-    .then(()=>{
-      alert('Pedido enviado. ¡Gracias!');
-      carrito=[]; saveCart(); renderCart();
-      document.getElementById('nombre').value='';
-      document.getElementById('telefono').value='';
-      document.getElementById('direccion').value='';
-      document.getElementById('email').value='';
-      submitBtn.disabled=false; submitBtn.textContent='Finalizar pedido';
-      closeCartPanel();
-    });
+      .then(()=>{ alert('Pedido enviado'); carrito=[]; saveCart(); renderCart(); });
   });
-
-  /********************************************
-   * Inicializar
-   ********************************************/
+  /****************************************************
+   INICIALIZAR TODO
+  *****************************************************/
   renderProductos();
   renderCart();
 });
+
 
 
