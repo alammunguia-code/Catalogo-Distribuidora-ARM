@@ -1,7 +1,17 @@
-/********************************************
- * CONFIG Google Forms
- ********************************************/
-const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe4qzkJIvgWWS0OhKrrOu2BJbuaHRNR5skoWoFQW3Sv-3430Q/formResponse";
+/****************************************************
+ * CONFIGURACIÓN GOOGLE SHEETS
+ ****************************************************/
+const SHEET_ID = '1ZYDo3phbc-IhaD-blVlaH7gbYkoyjhhX-I7Dtm06Cuo'; 
+const params = new URLSearchParams(window.location.search);
+const catalogoSeleccionado = params.get('catalogo') || 'Mayoreo';
+const SHEET_URL = `https://opensheet.elk.sh/${SHEET_ID}/${catalogoSeleccionado}`;
+
+/****************************************************
+ * CONFIGURACIÓN GOOGLE FORMS
+ ****************************************************/
+const FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSe4qzkJIvgWWS0OhKrrOu2BJbuaHRNR5skoWoFQW3Sv-3430Q/formResponse";
+
 const ENTRY = {
   nombre: 'entry.313556667',
   telefono: 'entry.675797328',
@@ -11,37 +21,16 @@ const ENTRY = {
   total: 'entry.1238815983'
 };
 
-document.addEventListener('DOMContentLoaded', ()=>{
+/****************************************************
+ * VARIABLES GLOBALES
+ ****************************************************/
+let productos = [];
+let carrito = JSON.parse(localStorage.getItem('amat_carrito_v1') || '[]');
 
-  /********************************************
-   * LISTA DE PRODUCTOS — 100% editable
-   ********************************************/
-  const productos = [
-    { id:1, nombre:'Sombrero Palma Fina', precio:189, precioMayoreo:165, imagen:'https://via.placeholder.com/400x300?text=Palma+Fina' },
-    { id:2, nombre:'Sombrero Charro Juvenil', precio:249, precioMayoreo:220, imagen:'https://via.placeholder.com/400x300?text=Charro+Juvenil' },
-    { id:3, nombre:'Sombrero Rancho Premium', precio:329, precioMayoreo:290, imagen:'https://via.placeholder.com/400x300?text=Rancho' },
-    { id:4, nombre:'Sombrero Palmita Económico', precio:129, precioMayoreo:115, imagen:'https://via.placeholder.com/400x300?text=Palmita' },
-    { id:5, nombre:'Sombrero Vaquero Café', precio:259, precioMayoreo:225, imagen:'https://via.placeholder.com/400x300?text=Vaquero+Cafe' },
-    { id:6, nombre:'Sombrero Vaquero Negro', precio:279, precioMayoreo:245, imagen:'https://via.placeholder.com/400x300?text=Vaquero+Negro' },
-    { id:7, nombre:'Sombrero Infantil Modelo 1', precio:149, precioMayoreo:135, imagen:'https://via.placeholder.com/400x300?text=Infantil+1' },
-    { id:8, nombre:'Sombrero Infantil Modelo 2', precio:159, precioMayoreo:140, imagen:'https://via.placeholder.com/400x300?text=Infantil+2' },
-    { id:9, nombre:'Sombrero Tradicional Mexicano', precio:199, precioMayoreo:175, imagen:'https://via.placeholder.com/400x300?text=Tradicional' },
-    { id:10, nombre:'Sombrero de Palma Artesanal', precio:299, precioMayoreo:255, imagen:'https://via.placeholder.com/400x300?text=Palma+Artesanal' },
-    { id:11, nombre:'Sombrero Palmilla Premium', precio:349, precioMayoreo:310, imagen:'https://via.placeholder.com/400x300?text=Palmilla+Premium' },
-    { id:12, nombre:'Sombrero Charro Bordado', precio:399, precioMayoreo:350, imagen:'https://via.placeholder.com/400x300?text=Charro+Bordado' },
-    { id:13, nombre:'Sombrero Juvenil Palmita', precio:139, precioMayoreo:120, imagen:'https://via.placeholder.com/400x300?text=Juvenil+Palmita' },
-    { id:14, nombre:'Sombrero Adulto Palmita', precio:159, precioMayoreo:135, imagen:'https://via.placeholder.com/400x300?text=Adulto+Palmita' },
-    { id:15, nombre:'Sombrero Vaquero Premium', precio:349, precioMayoreo:310, imagen:'https://via.placeholder.com/400x300?text=Vaquero+Premium' },
-    { id:16, nombre:'Sombrero Cinto Café', precio:289, precioMayoreo:250, imagen:'https://via.placeholder.com/400x300?text=Cinto+Cafe' },
-    { id:17, nombre:'Sombrero Cinto Negro', precio:289, precioMayoreo:250, imagen:'https://via.placeholder.com/400x300?text=Cinto+Negro' },
-    { id:18, nombre:'Sombrero de Palma Dura', precio:219, precioMayoreo:190, imagen:'https://via.placeholder.com/400x300?text=Palma+Dura' },
-    { id:19, nombre:'Sombrero de Palma Suave', precio:209, precioMayoreo:180, imagen:'https://via.placeholder.com/400x300?text=Palma+Suave' },
-    { id:20, nombre:'Sombrero Elegante Tradición', precio:379, precioMayoreo:330, imagen:'https://via.placeholder.com/400x300?text=Elegante' }
-  ];
-
-  let carrito = JSON.parse(localStorage.getItem('amat_carrito_v1')||'[]');
-
-  /********** ELEMENTOS DOM **********/
+/****************************************************
+ * ELEMENTOS DOM
+ ****************************************************/
+document.addEventListener('DOMContentLoaded', () => {
   const catalogoEl = document.getElementById('catalogo');
   const cartBtn = document.getElementById('cart-btn');
   const cartBadge = document.getElementById('cart-badge');
@@ -52,142 +41,214 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const closeCart = document.getElementById('close-cart');
   const submitBtn = document.getElementById('submit-order');
 
-  /********************************************
-   * RENDER PRODUCTOS
-   ********************************************/
-  function renderProductos(){
-    catalogoEl.innerHTML = '';
-    productos.forEach((p,i)=>{
-      const ahorro = p.precio - p.precioMayoreo;
+  /****************************************************
+   * CARGAR PRODUCTOS DESDE GOOGLE SHEETS
+   ****************************************************/
+  async function cargarProductos() {
+    try {
+      const res = await fetch(SHEET_URL);
+      const data = await res.json();
 
+      productos = data.map(row => ({
+        id: Number(row.id),
+        nombre: row.nombre,
+        precio: Number(row.precio),
+        precioMayoreo: Number(row.precio_mayoreo),
+        minMayoreo: Number(row.minimo_mayoreo),
+        imagen: row.imagen
+      }));
+
+      renderProductos();
+    } catch (err) {
+      console.error('Error cargando productos:', err);
+      alert('No se pudieron cargar los productos');
+    }
+  }
+
+  /****************************************************
+   * RENDER CATÁLOGO
+   ****************************************************/
+  function renderProductos() {
+    catalogoEl.innerHTML = '';
+
+    productos.forEach((p, i) => {
       const card = document.createElement('article');
       card.className = 'card';
+
       card.innerHTML = `
         <img src="${p.imagen}" alt="${p.nombre}">
         <h3>${p.nombre}</h3>
         <div class="price">$${p.precio} MXN</div>
-        <small>Precio mayoreo: $${p.precioMayoreo} MXN</small><br>
-        <small style="color:#10b981">Ahorra $${ahorro} por pieza</small>
-
+        <div style="font-size:13px;color:#16a34a;margin-bottom:10px">
+          Ahorra comprando mayoreo ($${p.precioMayoreo} desde ${p.minMayoreo} pzas)
+        </div>
         <button class="btn" data-index="${i}">Agregar al carrito</button>
       `;
+
       catalogoEl.appendChild(card);
     });
   }
 
-  function saveCart(){
+  /****************************************************
+   * CARRITO
+   ****************************************************/
+  function saveCart() {
     localStorage.setItem('amat_carrito_v1', JSON.stringify(carrito));
   }
 
-  function updateBadge(){
-    const cantidad = carrito.reduce((s,i)=>s+i.cantidad,0);
-    cartBadge.style.display = cantidad>0 ? 'flex' : 'none';
+  function updateBadge() {
+    const cantidad = carrito.reduce((s, i) => s + i.cantidad, 0);
+    cartBadge.style.display = cantidad > 0 ? 'flex' : 'none';
     cartBadge.textContent = cantidad;
   }
 
-  /********************************************
-   * RENDER CARRITO
-   ********************************************/
-  function renderCart(){
+  function renderCart() {
     cartBody.innerHTML = '';
 
-    if(carrito.length===0){
-      cartBody.innerHTML='<div style="padding:18px;color:#666">Tu carrito está vacío</div>';
-      cartTotalEl.textContent='0';
-      updateBadge(); return;
+    if (carrito.length === 0) {
+      cartBody.innerHTML =
+        '<div style="padding:18px;color:#6b7280">Tu carrito está vacío</div>';
+      cartTotalEl.textContent = '0';
+      updateBadge();
+      return;
     }
 
-    carrito.forEach((item,index)=>{
-      const node = document.createElement('div');
-      node.className='cart-item';
+    carrito.forEach((item, index) => {
+      const precioUnit =
+        item.cantidad >= item.minMayoreo
+          ? item.precioMayoreo
+          : item.precio;
 
-      node.innerHTML=`
-        <img src="${item.imagen}" alt="${item.nombre}">
+      const node = document.createElement('div');
+      node.className = 'cart-item';
+      node.innerHTML = `
+        <img src="${item.imagen}">
         <div class="meta">
           <b>${item.nombre}</b>
-          <div style="color:#666;font-size:13px">
-            $${item.precioMayoreo} c/u (mayoreo)
+          <div style="font-size:13px;color:#6b7280">
+            $${precioUnit} MXN c/u
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end">
-          <input class="qty" type="number" min="1" value="${item.cantidad}" data-index="${index}">
+        <div>
+          <input class="qty" type="number" min="1"
+            value="${item.cantidad}" data-index="${index}">
           <button class="small-btn" data-remove="${index}">Eliminar</button>
         </div>
       `;
       cartBody.appendChild(node);
     });
 
-    const total = carrito.reduce((s,i)=>s + i.precioMayoreo * i.cantidad,0);
+    const total = carrito.reduce((s, i) => {
+      const precio =
+        i.cantidad >= i.minMayoreo ? i.precioMayoreo : i.precio;
+      return s + precio * i.cantidad;
+    }, 0);
 
-    cartTotalEl.textContent=total;
+    cartTotalEl.textContent = total;
     updateBadge();
   }
 
-  /********************************************
-   * EVENTOS PRINCIPALES
-   ********************************************/
-  catalogoEl.addEventListener('click', e=>{
+  /****************************************************
+   * EVENTOS CATÁLOGO
+   ****************************************************/
+  catalogoEl.addEventListener('click', e => {
     const btn = e.target.closest('button[data-index]');
-    if(!btn) return;
-    const idx = Number(btn.getAttribute('data-index'));
+    if (!btn) return;
+
+    const idx = Number(btn.dataset.index);
     const p = productos[idx];
+    const existing = carrito.find(x => x.id === p.id);
 
-    const existing = carrito.find(x=>x.id===p.id);
-    if(existing) existing.cantidad += 1;
-    else carrito.push({...p,cantidad:1});
+    if (existing) existing.cantidad++;
+    else carrito.push({ ...p, cantidad: 1 });
 
-    saveCart(); renderCart();
+    saveCart();
+    renderCart();
   });
 
-  cartBody.addEventListener('change', e=>{
+  cartBody.addEventListener('change', e => {
     const input = e.target.closest('input.qty');
-    if(!input) return;
-    const index = Number(input.getAttribute('data-index'));
-    carrito[index].cantidad=parseInt(input.value)||1;
-    saveCart(); renderCart();
+    if (!input) return;
+
+    const idx = Number(input.dataset.index);
+    carrito[idx].cantidad = parseInt(input.value) || 1;
+
+    saveCart();
+    renderCart();
   });
 
-  cartBody.addEventListener('click', e=>{
+  cartBody.addEventListener('click', e => {
     const rm = e.target.closest('button[data-remove]');
-    if(!rm) return;
-    const index = Number(rm.getAttribute('data-remove'));
-    carrito.splice(index,1);
-    saveCart(); renderCart();
+    if (!rm) return;
+
+    carrito.splice(Number(rm.dataset.remove), 1);
+    saveCart();
+    renderCart();
   });
 
-  /********************************************
-   * CARRITO
-   ********************************************/
-  cartBtn.addEventListener('click', ()=> cartPanel.classList.add('open'));
-  closeCart.addEventListener('click', ()=> cartPanel.classList.remove('open'));
-  overlay.addEventListener('click', ()=> cartPanel.classList.remove('open'));
+  /****************************************************
+   * ABRIR / CERRAR CARRITO
+   ****************************************************/
+  function openCart() {
+    cartPanel.classList.add('open');
+    overlay.classList.add('show');
+  }
+  function closeCartPanel() {
+    cartPanel.classList.remove('open');
+    overlay.classList.remove('show');
+  }
 
-  /********************************************
+  cartBtn.addEventListener('click', () =>
+    cartPanel.classList.contains('open')
+      ? closeCartPanel()
+      : openCart()
+  );
+  closeCart.addEventListener('click', closeCartPanel);
+  overlay.addEventListener('click', closeCartPanel);
+
+  /****************************************************
    * ENVIAR PEDIDO
-   ********************************************/
-  submitBtn.addEventListener('click', ()=>{
-    if(carrito.length===0){ alert('Carrito vacío'); return; }
+   ****************************************************/
+  submitBtn.addEventListener('click', () => {
+    if (carrito.length === 0) return alert('El carrito está vacío');
 
-    const pedidoTxt = carrito.map(i=>`${i.nombre} x${i.cantidad} $${i.precioMayoreo}`).join("\n");
-    const total = carrito.reduce((s,i)=>s + i.precioMayoreo*i.cantidad,0);
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const direccion = document.getElementById('direccion').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    if (!nombre || !telefono || !direccion || !email)
+      return alert('Completa tus datos');
+
+    const pedidoTexto = carrito
+      .map(i => `${i.nombre} x${i.cantidad}`)
+      .join('\n');
+
+    const total = cartTotalEl.textContent;
 
     const fd = new FormData();
-    fd.append(ENTRY.nombre, document.getElementById('nombre').value);
-    fd.append(ENTRY.telefono, document.getElementById('telefono').value);
-    fd.append(ENTRY.direccion, document.getElementById('direccion').value);
-    fd.append(ENTRY.email, document.getElementById('email').value);
-    fd.append(ENTRY.pedido,pedidoTxt);
-    fd.append(ENTRY.total,total);
+    fd.append(ENTRY.nombre, nombre);
+    fd.append(ENTRY.telefono, telefono);
+    fd.append(ENTRY.direccion, direccion);
+    fd.append(ENTRY.email, email);
+    fd.append(ENTRY.pedido, pedidoTexto);
+    fd.append(ENTRY.total, total);
 
-    fetch(FORM_URL,{method:'POST',body:fd,mode:'no-cors'})
-      .then(()=>{ alert('Pedido enviado'); carrito=[]; saveCart(); renderCart(); });
+    fetch(FORM_URL, { method: 'POST', body: fd, mode: 'no-cors' })
+      .then(() => {
+        alert('Pedido enviado con éxito');
+        carrito = [];
+        saveCart();
+        renderCart();
+        closeCartPanel();
+      })
+      .catch(() => alert('Error al enviar pedido'));
   });
+
   /****************************************************
-   INICIALIZAR TODO
-  *****************************************************/
-  renderProductos();
+   * INICIALIZAR
+   ****************************************************/
+  cargarProductos();
   renderCart();
 });
-
-
 
