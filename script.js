@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('search');
   const categoryButtons = document.querySelectorAll('.filter-btn');
 
-  let activeCategory = 'todos'; // valor por defecto (coincide con data-filter "Todos")
+  let activeCategory = 'todos';
   let lastSearch = '';
 
   /****************************************************
@@ -57,25 +57,38 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       productos = data.map(row => ({
-        id: String(row.id || Math.random().toString(36).slice(2, 9)), // asegurar id único como string
+        id: String(row.id || Math.random().toString(36).slice(2, 9)),
         nombre: row.nombre || '',
         descripcion: row.descripcion || '',
         precio: Number(row.precio) || 0,
         precioMayoreo: Number(row.precio_mayoreo) || 0,
         minMayoreo: Number(row.minimo_mayoreo) || 0,
         categoria: (row.categoria || 'Otros').trim(),
+        // Si la celda está vacía => [], si hay 1 color => ['Rojo'], si hay varios => ['Rojo','Azul']
         colores: row.colores
-          ? row.colores.split(',').map(c => c.trim())
-          : ['Único'],
+          ? row.colores.split(',').map(c => c.trim()).filter(Boolean)
+          : [],
         imagen: row.imagen || ''
       }));
 
-      // Mostrar inicialmente aplicando filtros (vacío + todos)
       applyFilters();
     } catch (err) {
       console.error(err);
       alert('No se pudieron cargar los productos');
     }
+  }
+
+  /****************************************************
+   * UTILIDADES
+   ****************************************************/
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   /****************************************************
@@ -95,9 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = 'card';
 
       let colorHTML = '';
-      if (p.colores && p.colores.length > 1) {
+      // Mostrar selector solo si hay más de 1 color
+      if (Array.isArray(p.colores) && p.colores.length > 1) {
         colorHTML = `
-          <select class="color-select" data-id="${p.id}">
+          <select class="color-select" data-id="${escapeHtml(p.id)}">
             ${p.colores.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
           </select>
         `;
@@ -111,22 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
           Mayoreo: $${Number(p.precioMayoreo).toFixed(2)} desde ${p.minMayoreo} pzas
         </div>
         ${colorHTML}
-        <button class="btn" data-id="${p.id}">Agregar al carrito</button>
+        <button class="btn" data-id="${escapeHtml(p.id)}">Agregar al carrito</button>
       `;
 
       catalogoEl.appendChild(card);
     });
-  }
-
-  // pequeña función para escapar texto en templates
-  function escapeHtml(str) {
-    if (!str && str !== 0) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
   }
 
   /****************************************************
@@ -165,11 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (categoryButtons && categoryButtons.length) {
     categoryButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        // actualizar estado visual
         categoryButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        // normalizar valor a minúsculas para comparar
         activeCategory = (btn.dataset.filter || 'Todos').toString().trim().toLowerCase();
         applyFilters();
       });
@@ -212,13 +213,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       total += precioUnit * item.cantidad;
 
+      // Mostrar color solo si item.color tiene contenido
+      const nombreConColor = item.color && item.color.toString().trim() !== ''
+        ? `${escapeHtml(item.nombre)} (${escapeHtml(item.color)})`
+        : escapeHtml(item.nombre);
+
       const node = document.createElement('div');
       node.className = 'cart-item';
 
       node.innerHTML = `
         <img src="${escapeHtml(item.imagen)}">
         <div class="meta">
-          <b>${escapeHtml(item.nombre)} (${escapeHtml(item.color)})</b>
+          <b>${nombreConColor}</b>
           <div style="font-size:13px;color:#6b7280">
             $${Number(precioUnit).toFixed(2)} MXN c/u
           </div>
@@ -248,8 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const p = productos.find(x => String(x.id) === id);
       if (!p) return;
 
+      // Si existe select (varios colores) usamos su valor.
+      // Si no existe select pero p.colores tiene al menos 1 elemento, usamos el primero.
+      // Si no hay colores, dejamos color como cadena vacía ''.
       const select = document.querySelector(`.color-select[data-id="${id}"]`);
-      const color = select ? select.value : (p.colores && p.colores[0]) || 'Único';
+      const color = select
+        ? select.value
+        : (Array.isArray(p.colores) && p.colores.length > 0 ? p.colores[0] : '');
 
       const existing = carrito.find(x => String(x.id) === String(p.id) && x.color === color);
 
@@ -261,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // cambiar cantidad en carrito
+  // cambiar cantidad en carrito y eliminar
   if (cartBody) {
     cartBody.addEventListener('change', e => {
       const input = e.target.closest('input.qty');
@@ -323,13 +334,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return alert('Completa tus datos');
 
       const pedidoTexto = carrito
-        .map(
-          i =>
-            `${i.nombre} (${i.color}) x${i.cantidad} = $${(
-              (i.cantidad >= i.minMayoreo ? i.precioMayoreo : i.precio) *
-              i.cantidad
-            ).toFixed(2)}`
-        )
+        .map(i => {
+          const nombreConColor = i.color && i.color.toString().trim() !== '' ? `${i.nombre} (${i.color})` : i.nombre;
+          const precioUnit = i.cantidad >= i.minMayoreo ? i.precioMayoreo : i.precio;
+          return `${nombreConColor} x${i.cantidad} = $${(precioUnit * i.cantidad).toFixed(2)}`;
+        })
         .join('\n');
 
       const fd = new FormData();
@@ -359,10 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
   /****************************************************
    * INIT
    ****************************************************/
-  // render del carrito guardado
   renderCart();
-  // cargar productos desde Google Sheet
   cargarProductos();
 });
+
 
 
