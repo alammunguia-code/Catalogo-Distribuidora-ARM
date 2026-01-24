@@ -1,5 +1,5 @@
 
- /****************************************************
+/****************************************************
  * CONFIGURACIÓN GOOGLE SHEETS
  ****************************************************/
 const SHEET_ID = '1ZYDo3phbc-IhaD-blVlaH7gbYkoyjhhX-I7Dtm06Cuo';
@@ -372,5 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCart();
   cargarProductos();
 });
+
 
 
