@@ -139,20 +139,24 @@ function renderProductos(lista = productos) {
     }
 
     card.innerHTML = `
-      ${imagenHTML}
-      <h3>${escapeHtml(p.nombre)}</h3>
-      <div class="price">$${Number(p.precio).toFixed(2)} MXN</div>
-      <div style="font-size:13px;color:#16a34a;margin-bottom:8px">
-        Mayoreo: $${Number(p.precioMayoreo).toFixed(2)} desde ${p.minMayoreo} pzas
-      </div>
-      <div class="card-actions">
-        ${colorHTML}
-        <button class="btn" data-id="${escapeHtml(p.id)}">Agregar al carrito</button>
-      </div>
-    `;
+  <div class="card-image">
+    ${imagenHTML}
+  </div>
+  <div class="card-info">
+    <h3>${escapeHtml(p.nombre)}</h3>
+    <div class="price">$${Number(p.precio).toFixed(2)} MXN</div>
+    <div class="mayoreo">
+      Mayoreo: $${Number(p.precioMayoreo).toFixed(2)} desde ${p.minMayoreo} pzas
+    </div>
+  </div>
+  <div class="card-actions">
+    ${colorHTML}
+    <button class="btn" data-id="${escapeHtml(p.id)}">Agregar al carrito</button>
+  </div>
+`;
 
-    catalogoEl.appendChild(card);
-  });
+catalogoEl.appendChild(card);
+
 }
 
 // --- Carrusel: manejar flechas ---
@@ -415,6 +419,7 @@ document.addEventListener('click', e => {
   renderCart();
   cargarProductos();
 });
+
 
 
 
