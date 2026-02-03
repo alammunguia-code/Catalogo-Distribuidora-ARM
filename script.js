@@ -22,12 +22,6 @@ const ENTRY = {
 };
 
 /****************************************************
- * VARIABLES GLOBALES
- ****************************************************/
-let productos = [];
-let carrito = JSON.parse(localStorage.getItem('amat_carrito_v1') || '[]');
-
-/****************************************************
  * HELPERS
  ****************************************************/
 function normalizarCategoria(str) {
@@ -37,6 +31,12 @@ function normalizarCategoria(str) {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 }
+
+/****************************************************
+ * VARIABLES GLOBALES
+ ****************************************************/
+let productos = [];
+let carrito = JSON.parse(localStorage.getItem('amat_carrito_v1') || '[]');
 
 /****************************************************
  * DOM READY
@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeCart = document.getElementById('close-cart');
   const submitBtn = document.getElementById('submit-order');
   const searchInput = document.getElementById('search');
+  const categoryContainer = document.getElementById('category-buttons');
 
   let activeCategory = 'todos';
   let lastSearch = '';
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         precio: Number(row.precio) || 0,
         precioMayoreo: Number(row.precio_mayoreo) || 0,
         minMayoreo: Number(row.minimo_mayoreo) || 0,
-        categoria: row.categoria || 'Otros',
+        categoria: (row.categoria || 'Otros').trim(),
         categoriaNorm: normalizarCategoria(row.categoria || 'Otros'),
         colores: row.colores
           ? row.colores.split(',').map(c => c.trim()).filter(Boolean)
@@ -94,8 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * CATEGORÍAS AUTOMÁTICAS
    ****************************************************/
   function renderCategoryButtons() {
-    const container = document.getElementById('category-buttons');
-    if (!container) return;
+    if (!categoryContainer) return;
 
     const categorias = [
       { label: 'Todos', value: 'todos' },
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ).values()]
     ];
 
-    container.innerHTML = '';
+    categoryContainer.innerHTML = '';
 
     categorias.forEach(cat => {
       const btn = document.createElement('button');
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.textContent = cat.label;
 
       btn.addEventListener('click', () => {
-        container.querySelectorAll('.filter-btn')
+        categoryContainer.querySelectorAll('.filter-btn')
           .forEach(b => b.classList.remove('active'));
 
         btn.classList.add('active');
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilters();
       });
 
-      container.appendChild(btn);
+      categoryContainer.appendChild(btn);
     });
   }
 
@@ -186,10 +186,27 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /****************************************************
+   * CARRUSEL
+   ****************************************************/
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
+
+    const carousel = btn.closest('.carousel');
+    const imgs = carousel.querySelectorAll('.carousel-img');
+    let idx = [...imgs].findIndex(i => i.classList.contains('active'));
+    imgs[idx].classList.remove('active');
+    idx = btn.classList.contains('prev')
+      ? (idx - 1 + imgs.length) % imgs.length
+      : (idx + 1) % imgs.length;
+    imgs[idx].classList.add('active');
+  });
+
+  /****************************************************
    * FILTROS
    ****************************************************/
   function applyFilters() {
-    const q = lastSearch.trim().toLowerCase();
+    const q = lastSearch.toLowerCase();
 
     const filtrados = productos.filter(p => {
       const textMatch =
