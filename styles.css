@@ -69,27 +69,176 @@ header h1{font-size:2rem;font-weight:700}
 }
 
 /* ===============================
-   BUSCADOR
+   BUSCADOR 
    =============================== */
-.search-bar{
-  max-width:720px;
-  margin:18px auto;
-  padding:0 12px;
+.search-bar {
+  max-width: 720px;
+  margin: 18px auto;
+  padding: 0 12px;
 }
-.search-input-wrap{
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  border: 1px solid rgba(16,24,40,0.04);
+  transition: box-shadow .18s ease, border-color .18s ease, transform .12s ease;
+}
+
+.search-input-wrap:focus-within {
+  box-shadow: 0 10px 30px rgba(16,24,40,0.10);
+  border-color: rgba(13,148,136,0.18);
+  transform: translateY(-1px);
+}
+
+.search-icon {
+  font-size: 18px;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+#search {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: inherit;
+  padding: 6px 4px;
+}
+
+.clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.clear-btn:hover {
+  background: rgba(0,0,0,0.04);
+}
+/* ===============================
+   CARRITO LATERAL 
+   =============================== */
+
+.cart-panel{
+  position:fixed;
+  right:0;
+  top:0;
+  height:100vh;
+  width:420px;
+  max-width:95vw;
+  background:var(--card);
+  box-shadow:-20px 0 40px rgba(0,0,0,.15);
+  transform:translateX(120%);
+  transition:transform .35s cubic-bezier(.2,.9,.2,1);
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+}
+
+.cart-panel.open{
+  transform:translateX(0);
+}
+
+.cart-header{
+  padding:20px;
+  border-bottom:1px solid #e5e7eb;
   display:flex;
   align-items:center;
-  gap:8px;
-  background:var(--card);
-  border-radius:12px;
-  padding:8px 10px;
-  box-shadow:0 6px 18px rgba(16,24,40,0.06);
+  justify-content:space-between;
+  font-size:1.2rem;
+  font-weight:700;
 }
-#search{
+
+.cart-body{
+  padding:18px;
   flex:1;
+  overflow-y:auto;
+}
+
+.cart-item{
+  background:#f9fafb;
+  border-radius:12px;
+  padding:14px;
+  display:flex;
+  gap:14px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+
+.cart-item img{
+  width:70px;
+  height:70px;
+  border-radius:10px;
+  object-fit:cover;
+}
+
+.qty{
+  width:60px;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #cbd5e1;
+  text-align:center;
+}
+
+.small-btn{
+  background:none;
   border:none;
-  outline:none;
-  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  margin-top:6px;
+  font-size:13px;
+}
+
+.cart-footer{
+  padding:20px;
+  border-top:1px solid #e5e7eb;
+  background:#f8fafc;
+}
+
+.checkout-btn{
+  background:var(--accent);
+  color:#fff;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  width:100%;
+  font-weight:700;
+  font-size:1.05rem;
+  cursor:pointer;
+}
+
+.checkout-btn:hover{
+  background:var(--accent-dark);
+}
+
+/* ===============================
+   OVERLAY CARRITO
+   =============================== */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .25s;
+  z-index:90;
+}
+
+.overlay.show{
+  opacity:1;
+  visibility:visible;
+}
+
+@media(max-width:640px){
+  .cart-panel{width:100vw}
 }
 
 /* ===============================
@@ -265,3 +414,4 @@ header h1{font-size:2rem;font-weight:700}
     transform:none !important;
   }
 }
+
