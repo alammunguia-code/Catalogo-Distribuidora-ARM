@@ -389,41 +389,56 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarProductos();
 });
 /****************************************************
- * ZOOM QUE SIGUE AL CURSOR
+ * ZOOM QUE SIGUE AL CURSOR 
  ****************************************************/
-document.addEventListener('mousemove', e => {
+
+document.addEventListener('mousemove', (e) => {
   const cardImage = e.target.closest('.card-image');
-  if (!cardImage) return;
+  if (!cardImage || !cardImage.classList.contains('zoom-active')) return;
 
   const img =
-    cardImage.querySelector('img.carousel-img.active') ||
+    cardImage.querySelector('.carousel-img.active') ||
     cardImage.querySelector('img');
 
   if (!img) return;
 
   const rect = cardImage.getBoundingClientRect();
+
   const x = ((e.clientX - rect.left) / rect.width) * 100;
   const y = ((e.clientY - rect.top) / rect.height) * 100;
 
   img.style.transformOrigin = `${x}% ${y}%`;
 });
 
-document.addEventListener('mouseenter', e => {
-  const cardImage = e.target.closest('.card-image');
-  if (cardImage) cardImage.classList.add('zoom-active');
-}, true);
+document.addEventListener(
+  'mouseenter',
+  (e) => {
+    const cardImage = e.target.closest('.card-image');
+    if (!cardImage) return;
 
-document.addEventListener('mouseleave', e => {
-  const cardImage = e.target.closest('.card-image');
-  if (cardImage) {
+    cardImage.classList.add('zoom-active');
+  },
+  true
+);
+
+document.addEventListener(
+  'mouseleave',
+  (e) => {
+    const cardImage = e.target.closest('.card-image');
+    if (!cardImage) return;
+
     cardImage.classList.remove('zoom-active');
 
     const img =
-      cardImage.querySelector('img.carousel-img.active') ||
+      cardImage.querySelector('.carousel-img.active') ||
       cardImage.querySelector('img');
 
-    if (img) img.style.transformOrigin = 'center center';
-  }
-}, true);
+    if (img) {
+      img.style.transform = 'scale(1)';
+      img.style.transformOrigin = 'center center';
+    }
+  },
+  true
+);
 
 
