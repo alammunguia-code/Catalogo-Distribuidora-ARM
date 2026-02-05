@@ -216,6 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
       : (current + 1) % imgs.length;
 
     imgs[current].classList.add('active');
+    imgs[current].style.transform = '';
+    imgs[current].style.transformOrigin = 'center center';
+
   });
 
   /****************************************************
@@ -431,4 +434,5 @@ document.addEventListener('mouseout', (e) => {
     img.style.transformOrigin = 'center center';
   }
 });
+
 
