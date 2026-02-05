@@ -323,160 +323,94 @@ button:focus,
   padding: 0;
   margin: -1px;
 }
-.carousel { position: relative; width: 100%; height: 200px; overflow: hidden; border-radius: 12px; }
-.carousel-track { display: flex; }
-.carousel-img { min-width: 100%; height: 200px; object-fit: contain; display: none; }
-.carousel-img.active { display: block; }
-.carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: #fff; border: none; font-size: 22px; padding: 6px 10px; cursor: pointer; border-radius: 50%; }
-.carousel-btn.prev { left: 8px; }
-.carousel-btn.next { right: 8px; }
-.carousel-btn:hover { background: rgba(0,0,0,0.6); }
-
+/* ===================================================
+   TARJETA DE PRODUCTO (Estructura base)
+   =================================================== */
 .card {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   text-align: center;
-}
-
-.card-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-/* Contenedor general de la tarjeta */
-.card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* reparte espacio vertical */
-  align-items: center;
-  text-align: center;
-  height: 100%; /* asegura misma altura si usas grid */
-  padding: 12px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: transform .2s, box-shadow .2s;
+  height: 100%;
+  min-height: 420px;
   box-sizing: border-box;
 }
 
-/* Bloque de imagen/carrusel */
-.card-image,
-.carousel {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
-/* Carrusel track */
-.carousel-track {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* ===================================================
+   CONTENEDOR DE IMAGEN Y ZOOM
+   =================================================== */
+.card-image {
   width: 100%;
-}
-
-/* Imágenes del carrusel */
-.carousel-img {
-  min-width: 100%;
   height: 200px;
-  object-fit: contain;
-  display: none;
+  position: relative;
+  overflow: hidden; /* Crucial para que el zoom no se salga de la tarjeta */
+  background: #f8fafc;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.carousel-img.active {
+
+/* Estilo base para todas las imágenes (estáticas o carrusel) */
+.card-image img,
+.carousel-img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  transition: transform 0.3s ease-out, transform-origin 0.3s ease-out;
+  cursor: zoom-in;
+  display: none; /* Se ocultan por defecto */
+}
+
+/* Solo se muestra la activa */
+.carousel-img.active, 
+.card-image img:not(.carousel-img) {
   display: block;
   margin: 0 auto;
 }
 
-/* Botones del carrusel */
+/* Estado de Zoom Activo */
+.card-image.zoom-active img.active,
+.card-image.zoom-active img:not(.carousel-img) {
+  transform: scale(1.8);
+  z-index: 5;
+}
+
+/* ===================================================
+   CARRUSEL (Flechas y Track)
+   =================================================== */
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel-track {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
 .carousel-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0,0,0,0.4);
-  color: #fff;
-  border: none;
-  font-size: 22px;
-  padding: 6px 10px;
-  cursor: pointer;
-  border-radius: 50%;
-}
-.carousel-btn.prev { left: 8px; }
-.carousel-btn.next { right: 8px; }
-.carousel-btn:hover { background: rgba(0,0,0,0.6); }
-
-/* Bloque de información */
-.card-info {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.card-info h3 { margin: 8px 0; }
-.card-info .price { font-weight: bold; margin-bottom: 6px; }
-.card-info .mayoreo { font-size: 13px; color: #16a34a; margin-bottom: 8px; }
-
-/* Bloque de acciones (selector + botón) */
-.card-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto; /* empuja al fondo */
-}
-/* ===============================
-   ZOOM DINÁMICO CON CURSOR
-   =============================== */
-
-/* Ajustar imágenes para que siempre se vean completas */
-.card-image img,
-.card-image .carousel-img {
-  display: block;
-  margin: 0 auto;             
-  max-width: 100%;
-  max-height: 200px;          
-  object-fit: contain;         
-  transition: transform 0.25s ease, transform-origin 0.25s ease;
-  cursor: zoom-in;
-}
-
-/* Centrar y alinear correctamente el texto */
-.card-info {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;        
-  text-align: center;
-}
-
-/* Zoom activo */
-.card-image.zoom-active img,
-.card-image.zoom-active .carousel-img.active {
-  transform: scale(1.8);
-}
-
-/* Evitar problemas en móvil */
-@media (hover: none) {
-  .card-image img,
-  .card-image .carousel-img {
-    transform: none !important;
-  }
-}
-
-/* ===============================
-   Mejora visual del carrusel
-   =============================== */
-
-.carousel {
-  position: relative;
-}
-
-.carousel-track {
-  overflow: hidden;
-}
-
-.carousel-btn {
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
   border: none;
@@ -485,8 +419,51 @@ button:focus,
   height: 36px;
   border-radius: 50%;
   cursor: pointer;
+  z-index: 10; /* Siempre por encima del zoom */
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .carousel-btn:hover {
   background: rgba(0, 0, 0, 0.75);
+}
+
+.carousel-btn.prev { left: 8px; }
+.carousel-btn.next { right: 8px; }
+
+/* ===================================================
+   INFORMACIÓN Y ACCIONES
+   =================================================== */
+.card-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.card-info h3 { margin: 8px 0; font-size: 1.15rem; }
+.card-info .price { color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+.card-info .mayoreo { font-size: 13px; color: #16a34a; margin-bottom: 8px; font-weight: 600; }
+
+.card-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto; /* Empuja al fondo de la tarjeta */
+}
+
+/* Desactivar zoom en móviles para evitar saltos de pantalla */
+@media (hover: none) {
+  .card-image.zoom-active img {
+    transform: none !important;
+  }
+  .card-image {
+    overflow: hidden;
+  }
 }
