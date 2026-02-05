@@ -449,53 +449,44 @@ button:focus,
 /* ===============================
    CARRUSEL
    =============================== */
-.carousel {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  border-radius: 12px;
+.carousel{
+  position:relative;          
+  width:100%;
+  height:220px;               
+  overflow:hidden;            
+  border-radius:12px;
 }
 
-.carousel-track {
-  display: block;   
-  width: 100%;
-  height: 100%;
+.carousel-track{
+  display:flex;
+  transition: transform 0.3s ease;  
+  width:100%;
 }
 
-.carousel-img {
-  width: 100%;      
-  object-fit: contain;
-  display: none;    
+.carousel-img{
+  flex:0 0 100%;                
+  height:100%;
+  object-fit:contain;
+  display:block;                
 }
 
-.carousel-img.active {
-  display: block;   
-  margin: 0 auto;
+.carousel-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(0,0,0,.55);
+  color:#fff;
+  border:none;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  cursor:pointer;
+  z-index:10;                  
 }
+.carousel-btn.prev{left:8px}
+.carousel-btn.next{right:8px}
+.carousel-btn:hover{background:rgba(0,0,0,.75)}
 
-
-
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0,0,0,0.55);
-  color: #fff;
-  border: none;
-  font-size: 22px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.carousel-btn.prev { left: 8px; }
-.carousel-btn.next { right: 8px; }
-
-.carousel-btn:hover {
-  background: rgba(0,0,0,0.75);
-}
 
 
 
