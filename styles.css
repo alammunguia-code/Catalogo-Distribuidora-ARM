@@ -234,9 +234,9 @@ header h1 { font-size: 2rem; font-weight: 700; }
 }
 .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-/* ===================================================
-   CARRITO (PANEL LATERAL)
-   =================================================== */
+/***********************
+  Icono carrito flotante
+***********************/
 #cart-btn {
   position: fixed;
   right: 24px;
@@ -251,11 +251,14 @@ header h1 { font-size: 2rem; font-weight: 700; }
   font-size: 28px;
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  transition: transform .2s;
-  z-index: 80;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s;
+  z-index: 999; /* Asegura que siempre esté visible */
 }
-#cart-btn:hover { transform: scale(1.07); }
+
+#cart-btn:hover {
+  transform: scale(1.07);
+}
 
 #cart-badge {
   position: absolute;
@@ -272,6 +275,10 @@ header h1 { font-size: 2rem; font-weight: 700; }
   font-size: 13px;
   font-weight: 700;
 }
+
+/***********************
+  Panel lateral carrito
+***********************/
 .cart-panel {
   position: fixed;
   right: 0;
@@ -280,14 +287,17 @@ header h1 { font-size: 2rem; font-weight: 700; }
   width: 420px;
   max-width: 95vw;
   background: var(--card);
-  box-shadow: -20px 0 40px rgba(0,0,0,.15);
+  box-shadow: -20px 0 40px rgba(0, 0, 0, 0.15);
   transform: translateX(120%);
-  transition: transform .35s cubic-bezier(.2,.9,.2,1);
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 1000;
 }
-.cart-panel.open { transform: translateX(0); }
+
+.cart-panel.open {
+  transform: translateX(0);
+}
 
 .cart-header {
   padding: 20px;
@@ -313,8 +323,9 @@ header h1 { font-size: 2rem; font-weight: 700; }
   gap: 14px;
   margin-bottom: 14px;
   box-shadow: var(--shadow);
-  align-items: flex-start; /* Alineación original */
+  align-items: center;
 }
+
 
 .cart-item img {
   width: 70px !important;
@@ -322,9 +333,8 @@ header h1 { font-size: 2rem; font-weight: 700; }
   min-width: 70px;
   border-radius: 10px;
   object-fit: cover !important;
-  display: block !important; /* Evita que el JS del carrusel la oculte */
-  transform: none !important; /* Sin zoom */
-  cursor: default;
+  display: block !important;
+  transform: none !important; /* Evita el zoom de la tienda */
 }
 
 .qty {
@@ -342,6 +352,27 @@ header h1 { font-size: 2rem; font-weight: 700; }
   cursor: pointer;
   margin-top: 6px;
   font-size: 13px;
+}
+
+/***********************
+  Overlay y Footer
+***********************/
+.overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s;
+  z-index: 900;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 .cart-footer {
@@ -370,25 +401,17 @@ header h1 { font-size: 2rem; font-weight: 700; }
   font-size: 1.05rem;
   cursor: pointer;
 }
-.checkout-btn:hover { background: var(--accent-dark); }
 
-/* Capa oscura de fondo */
-.overlay {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.45);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .25s;
-  z-index: 90;
+.checkout-btn:hover {
+  background: var(--accent-dark);
 }
-.overlay.show { opacity: 1; visibility: visible; }
 
-/* Responsive del carrito */
-@media(max-width:640px){ .cart-panel { width: 100vw; } }
+/* Responsive */
+@media (max-width: 640px) {
+  .cart-panel {
+    width: 100vw;
+  }
+}
 
 /* ===================================================
    RESPONSIVE Y UTILIDADES
@@ -405,6 +428,7 @@ header h1 { font-size: 2rem; font-weight: 700; }
 }
 
 .visually-hidden { position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; border: 0; }
+
 
 
 
