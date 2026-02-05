@@ -200,19 +200,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!prevBtn && !nextBtn) return;
 
     const carousel = e.target.closest('.carousel');
-    if (!carousel) return;
-
     const imgs = carousel.querySelectorAll('.carousel-img');
     let current = [...imgs].findIndex(i => i.classList.contains('active'));
 
     imgs[current].classList.remove('active');
+    imgs[current].style.transform = ''; 
+
     current = prevBtn
       ? (current - 1 + imgs.length) % imgs.length
       : (current + 1) % imgs.length;
+
     imgs[current].classList.add('active');
-    imgs[current].style.transform = '';
-    imgs[current].style.transformOrigin = 'center center';
-  });
+});
 
   /****************************************************
    * FILTROS
@@ -372,68 +371,53 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /****************************************************
+   * ZOOM DINAMICO
+   ****************************************************/
+  document.addEventListener('mousemove', e => {
+      if (e.target.closest('.carousel-btn')) {
+          const activeImg = e.target.closest('.card-image')?.querySelector('.carousel-img.active');
+          if (activeImg) activeImg.style.transform = 'scale(1)';
+          return;
+      }
+
+      const cardImage = e.target.closest('.card-image.zoom-active');
+      if (!cardImage) return;
+
+      const img = cardImage.querySelector('.carousel-img.active') || cardImage.querySelector('img');
+      if (!img) return;
+
+      const rect = cardImage.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      img.style.transformOrigin = `${x}% ${y}%`;
+      img.style.transform = 'scale(1.8)';
+  });
+
+  document.addEventListener('mouseover', e => {
+      const cardImage = e.target.closest('.card-image');
+      if (cardImage) cardImage.classList.add('zoom-active');
+  });
+
+  document.addEventListener('mouseout', e => {
+      const cardImage = e.target.closest('.card-image');
+      if (cardImage) {
+          cardImage.classList.remove('zoom-active');
+          const img = cardImage.querySelector('.carousel-img.active') || cardImage.querySelector('img');
+          if (img) {
+              img.style.transform = 'scale(1)';
+              img.style.transformOrigin = 'center center';
+          }
+      }
+  });
+
+  /****************************************************
    * INICIALIZAR
    ****************************************************/
   renderCart();
   cargarProductos();
 
-  /****************************************************
-   * ZOOM QUE SIGUE AL CURSOR
-   ****************************************************/
-  document.addEventListener('mousemove', e => {
-    const cardImage = e.target.closest('.card-image.zoom-active');
-    if (!cardImage) return;
-    const img = cardImage.querySelector('.carousel-img.active') || cardImage.querySelector('img');
-    if (!img) return;
-    const rect = cardImage.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    img.style.transformOrigin = `${x}% ${y}%`;
-  });
-
-  document.addEventListener('mouseover', e => {
-    const cardImage = e.target.closest('.card-image');
-    if (!cardImage) return;
-    cardImage.classList.add('zoom-active');
-  });
-
-  document.addEventListener('mouseout', e => {
-    const cardImage = e.target.closest('.card-image');
-    if (!cardImage) return;
-    cardImage.classList.remove('zoom-active');
-    const img = cardImage.querySelector('.carousel-img.active') || cardImage.querySelector('img');
-    if (img) img.style.transformOrigin = 'center center';
-  });
-
-  /****************************************************
-   * INICIALIZAR CARRUSELES
-   ****************************************************/
-  document.querySelectorAll('.carousel').forEach(carousel => {
-    const track = carousel.querySelector('.carousel-track');
-    const slides = Array.from(track.children);
-    const prevBtn = carousel.querySelector('.carousel-btn.prev');
-    const nextBtn = carousel.querySelector('.carousel-btn.next');
-    let index = 0;
-
-    function updateSlide() {
-      track.style.transform = `translateX(-${index * 100}%)`;
-      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
-    }
-
-    prevBtn.addEventListener('click', () => {
-      index = (index - 1 + slides.length) % slides.length;
-      updateSlide();
-    });
-
-    nextBtn.addEventListener('click', () => {
-      index = (index + 1) % slides.length;
-      updateSlide();
-    });
-
-    updateSlide();
-  });
-
-});
+}); 
 
 
 
