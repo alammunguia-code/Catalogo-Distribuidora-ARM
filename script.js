@@ -18,8 +18,8 @@ const ENTRY = {
   pedido: 'entry.889150100',
   total: 'entry.1238815983',
   precioUnitario: 'entry.1479326422',
-  subtotal: 'entry.1763806759'
-  
+  subtotal: 'entry.1763806759',
+  cantidades: 'entry.1766881644'
   
 };
 
@@ -358,7 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return alert('Completa tus datos');
 
     const pedidoTexto = carrito
-      .map(i => `${i.nombre}${i.color ? ` (${i.color})` : ''} x${i.cantidad}`)
+      .map(i => `${i.nombre}${i.color ? ` (${i.color})` : ''}`)
+      .join('\n');
+    const cantidadesTexto = carrito
+      .map(i => i.cantidad)
       .join('\n');
     const precioUnitarioTexto = carrito
       .map(i => {
@@ -380,9 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fd.append(ENTRY.direccion, direccion);
     fd.append(ENTRY.email, email);
     fd.append(ENTRY.pedido, pedidoTexto);
-    fd.append(ENTRY.total, cartTotalEl.textContent);
+    fd.append(ENTRY.cantidades, cantidadesTexto);
     fd.append(ENTRY.precioUnitario, precioUnitarioTexto);
     fd.append(ENTRY.subtotal, subtotalTexto);
+    fd.append(ENTRY.total, cartTotalEl.textContent);
 
     fetch(FORM_URL, { method: 'POST', body: fd, mode: 'no-cors' })
       .then(() => {
@@ -443,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarProductos();
 
 }); 
+
 
 
 
