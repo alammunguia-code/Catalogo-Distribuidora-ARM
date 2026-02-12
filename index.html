@@ -57,13 +57,24 @@
 
   <div class="cart-body" id="cart-body"></div>
 
-  <div class="cart-footer">
-    <div>
-      Total:
+<div class="cart-footer">
+    <div style="font-size: 14px; color: #4b5563; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Subtotal:</span>
+        <span>$<span id="cart-subtotal">0.00</span></span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>IVA (16%):</span>
+        <span>$<span id="cart-iva">0.00</span></span>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 18px;">
+      <span>Total:</span>
       <strong>$<span id="cart-total">0</span> MXN</strong>
     </div>
 
-    <div class="checkout-form">
+    <div class="checkout-form" style="margin-top: 15px;">
       <input id="nombre" type="text" placeholder="Nombre" required />
       <input id="telefono" type="text" placeholder="Teléfono" required />
       <input id="direccion" type="text" placeholder="Dirección" required />
@@ -74,8 +85,8 @@
       </button>
     </div>
 
-    <div style="font-size:12px;margin-top:8px;">
-      Tu pedido quedará registrado.
+    <div style="font-size:12px;margin-top:8px; color: #6b7280; text-align: center;">
+      Tu pedido quedará registrado. Precios incluyen IVA.
     </div>
   </div>
 </aside>
@@ -83,6 +94,7 @@
 <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
