@@ -290,6 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const subtotalGral = total / 1.16;
     const ivaGral = total - subtotalGral;
+    document.getElementById('cart-subtotal').textContent = subtotalGral.toFixed(2);
+    document.getElementById('cart-iva').textContent = ivaGral.toFixed(2);
 
     cartTotalEl.textContent = total.toFixed(2);
     updateBadge();
@@ -453,6 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarProductos();
 
 }); 
+
 
 
 
