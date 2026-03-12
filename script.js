@@ -206,43 +206,52 @@ document.addEventListener('DOMContentLoaded', () => {
   /****************************************************
    * CARRUSEL
    ****************************************************/
-  document.addEventListener('click', e => {
+ document.addEventListener('click', e => {
     const prevBtn = e.target.closest('.carousel-btn.prev');
     const nextBtn = e.target.closest('.carousel-btn.next');
+    
+    // Si no se hizo clic en un botón del carrusel, no hacemos nada
     if (!prevBtn && !nextBtn) return;
 
     const carousel = e.target.closest('.carousel');
     const imgs = carousel.querySelectorAll('.carousel-img');
     let current = [...imgs].findIndex(i => i.classList.contains('active'));
 
-    imgs[current].classList.remove('active');
-    imgs[current].style.transform = ''; 
-
-    current = prevBtn
-      ? (current - 1 + imgs.length) % imgs.length
-      : (current + 1) % imgs.length;
-
-    imgs[current].classList.add('active');
-});
+    if (prevBtn) {
+      // Botón Anterior: Solo retrocede si no es la primera imagen
+      if (current > 0) {
+        imgs[current].classList.remove('active');
+        current--;
+        imgs[current].classList.add('active');
+      }
+    } else if (nextBtn) {
+      // Botón Siguiente: Solo avanza si no es la última imagen
+      if (current < imgs.length - 1) {
+        imgs[current].classList.remove('active');
+        current++;
+        imgs[current].classList.add('active');
+      }
+    }
+  });
 
   /****************************************************
-   * FILTROS
+   * FILTROS Y BUSCADOR
    ****************************************************/
-  function applyFilters() {
-    const q = lastSearch.trim().toLowerCase();
+ function applyFilters() {
+    // Usamos normalizarCategoria para limpiar lo que el usuario escribe
+    const q = normalizarCategoria(lastSearch); 
+    
     const filtrados = productos.filter(p => {
-      const textMatch = !q || p.nombre.toLowerCase().includes(q) || p.descripcion.toLowerCase().includes(q);
+      const nombreNorm = normalizarCategoria(p.nombre);
+      const descNorm = normalizarCategoria(p.descripcion);
+
+      const textMatch = !q || nombreNorm.includes(q) || descNorm.includes(q);
       const catMatch = activeCategory === 'todos' || p.categoriaNorm === activeCategory;
+      
       return textMatch && catMatch;
     });
+    
     renderProductos(filtrados);
-  }
-
-  if (searchInput) {
-    searchInput.addEventListener('input', e => {
-      lastSearch = e.target.value;
-      applyFilters();
-    });
   }
 
   /****************************************************
@@ -475,6 +484,7 @@ function renderCart() {
   cargarProductos();
 
 }); 
+
 
 
 
